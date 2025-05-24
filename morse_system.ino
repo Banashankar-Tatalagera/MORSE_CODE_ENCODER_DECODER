@@ -15,7 +15,6 @@ unsigned long pressStartTime = 0;
 bool buttonWasPressed = false;
 unsigned long lastInputTime = 0;
 bool waitingToDecode = false;
-
 unsigned long irBlockStart = 0;
 bool irWasBlocked = false;
 unsigned long lastActivity = 0;
@@ -27,50 +26,90 @@ const int wordGap = 3000;
 const int debounceDelay = 50;
 const int modeSwitchThreshold = 2000;
 
-String textToMorse(char c) {
-  switch (toupper(c)) {
-    case 'A': return ".-";
-    case 'B': return "-...";
-    case 'C': return "-.-.";
-    case 'D': return "-..";
-    case 'E': return ".";
-    case 'F': return "..-.";
-    case 'G': return "--.";
-    case 'H': return "....";
-    case 'I': return "..";
-    case 'J': return ".---";
-    case 'K': return "-.-";
-    case 'L': return ".-..";
-    case 'M': return "--";
-    case 'N': return "-.";
-    case 'O': return "---";
-    case 'P': return ".--.";
-    case 'Q': return "--.-";
-    case 'R': return ".-.";
-    case 'S': return "...";
-    case 'T': return "-";
-    case 'U': return "..-";
-    case 'V': return "...-";
-    case 'W': return ".--";
-    case 'X': return "-..-";
-    case 'Y': return "-.--";
-    case 'Z': return "--..";
-    case '0': return "-----";
-    case '1': return ".----";
-    case '2': return "..---";
-    case '3': return "...--";
-    case '4': return "....-";
-    case '5': return ".....";
-    case '6': return "-....";
-    case '7': return "--...";
-    case '8': return "---..";
-    case '9': return "----.";
-    case ' ': return " ";
+String textToMorse(char c)
+{
+  switch (toupper(c))
+  {
+  case 'A':
+    return ".-";
+  case 'B':
+    return "-...";
+  case 'C':
+    return "-.-.";
+  case 'D':
+    return "-..";
+  case 'E':
+    return ".";
+  case 'F':
+    return "..-.";
+  case 'G':
+    return "--.";
+  case 'H':
+    return "....";
+  case 'I':
+    return "..";
+  case 'J':
+    return ".---";
+  case 'K':
+    return "-.-";
+  case 'L':
+    return ".-..";
+  case 'M':
+    return "--";
+  case 'N':
+    return "-.";
+  case 'O':
+    return "---";
+  case 'P':
+    return ".--.";
+  case 'Q':
+    return "--.-";
+  case 'R':
+    return ".-.";
+  case 'S':
+    return "...";
+  case 'T':
+    return "-";
+  case 'U':
+    return "..-";
+  case 'V':
+    return "...-";
+  case 'W':
+    return ".--";
+  case 'X':
+    return "-..-";
+  case 'Y':
+    return "-.--";
+  case 'Z':
+    return "--..";
+  case '0':
+    return "-----";
+  case '1':
+    return ".----";
+  case '2':
+    return "..---";
+  case '3':
+    return "...--";
+  case '4':
+    return "....-";
+  case '5':
+    return ".....";
+  case '6':
+    return "-....";
+  case '7':
+    return "--...";
+  case '8':
+    return "---..";
+  case '9':
+    return "----.";
+  case ' ':
+    return " ";
   }
   return "";
 }
 
-char decodeMorse(String code) {
+char decodeMorse(String code)
+{
   String letters[] = {".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..",
                       ".---", "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.",
                       "...", "-", "..-", "...-", ".--", "-..-", "-.--", "--..",
@@ -79,15 +118,16 @@ char decodeMorse(String code) {
   char chars[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
                   'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
                   '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-
-  for (int i = 0; i < 36; i++) {
+  for (int i = 0; i < 36; i++)
+  {
     if (code == letters[i])
       return chars[i];
   }
   return '?';
 }
 
-void buzzDot() {
+void buzzDot()
+{
   digitalWrite(buzzerPin, HIGH);
   digitalWrite(ledPin, HIGH);
   delay(150);
@@ -96,7 +136,8 @@ void buzzDot() {
   delay(150);
 }
 
-void buzzDash() {
+void buzzDash()
+{
   digitalWrite(buzzerPin, HIGH);
   digitalWrite(ledPin, HIGH);
   delay(450);
@@ -105,8 +146,10 @@ void buzzDash() {
   delay(150);
 }
 
-void modeSwitchBeep(int count) {
-  for (int i = 0; i < count; i++) {
+void modeSwitchBeep(int count)
+{
+  for (int i = 0; i < count; i++)
+  {
     tone(buzzerPin, 1200);
     digitalWrite(ledPin, HIGH);
     delay(200);
@@ -116,7 +159,8 @@ void modeSwitchBeep(int count) {
   }
 }
 
-void resetSystem() {
+void resetSystem()
+{
   morseBuffer = "";
   decodedText = "";
   lcd.clear();
@@ -126,7 +170,16 @@ void resetSystem() {
   updateLCD();
 }
 
-void updateLCD() {
+String trimToFit(String s)
+{
+  if (s.length() > 14)
+    return s.substring(s.length() - 14);
+  else
+    return s;
+}
+
+void updateLCD()
+{
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("M:");
@@ -136,14 +189,8 @@ void updateLCD() {
   lcd.print(trimToFit(decodedText));
 }
 
-String trimToFit(String s) {
-  if (s.length() > 14)
-    return s.substring(s.length() - 14);
-  else
-    return s;
-}
-
-void setup() {
+void setup()
+{
   pinMode(buttonPin, INPUT_PULLUP);
   pinMode(irSensorPin, INPUT);
   pinMode(ledPin, OUTPUT);
@@ -160,24 +207,28 @@ void setup() {
   updateLCD();
 }
 
-void loop() {
+void loop()
+{
   unsigned long now = millis();
   bool buttonState = (digitalRead(buttonPin) == LOW);
   static bool lastButtonState = HIGH;
 
-  if (buttonState != lastButtonState) {
+  if (buttonState != lastButtonState)
+  {
     delay(debounceDelay);
     buttonState = (digitalRead(buttonPin) == LOW);
+    lastButtonState = buttonState;
   }
-  lastButtonState = buttonState;
 
-  if (buttonState && !buttonWasPressed) {
+  if (buttonState && !buttonWasPressed)
+  {
     pressStartTime = now;
     buttonWasPressed = true;
   }
 
-  if (buttonState && buttonWasPressed && (now - pressStartTime >= modeSwitchThreshold)) {
-    mode = (mode + 1) % 4;
+  if (buttonState && buttonWasPressed && (now - pressStartTime >= modeSwitchThreshold))
+  {
+    mode = (mode + 1) % 4; // mode count 4 (0-3)
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Mode Switched");
@@ -190,28 +241,34 @@ void loop() {
       lcd.print("Serial Encode");
     else
       lcd.print("System Reset");
-
     modeSwitchBeep(mode + 1);
     morseBuffer = "";
     decodedText = "";
     delay(1000);
     updateLCD();
-    while (digitalRead(buttonPin) == LOW) {}
+    while (digitalRead(buttonPin) == LOW)
+    {
+      // Wait for button release
+    }
     buttonWasPressed = false;
     return;
   }
 
-  if (!buttonState && buttonWasPressed) {
+  if (!buttonState && buttonWasPressed)
+  {
     unsigned long pressDuration = now - pressStartTime;
     buttonWasPressed = false;
-
-    if (mode == 0 && pressDuration < modeSwitchThreshold) {
+    if (mode == 0 && pressDuration < modeSwitchThreshold)
+    {
       lastInputTime = now;
       waitingToDecode = true;
-      if (pressDuration < encodeDotThreshold) {
+      if (pressDuration < encodeDotThreshold)
+      {
         morseBuffer += ".";
         buzzDot();
-      } else {
+      }
+      else
+      {
         morseBuffer += "-";
         buzzDash();
       }
@@ -219,7 +276,8 @@ void loop() {
     }
   }
 
-  if (mode == 0 && waitingToDecode && (now - lastInputTime >= 2000)) {
+  if (mode == 0 && waitingToDecode && (now - lastInputTime >= 2000))
+  {
     char decoded = decodeMorse(morseBuffer);
     decodedText += decoded;
     Serial.print("Decoded Morse: ");
@@ -229,39 +287,43 @@ void loop() {
     morseBuffer = "";
     updateLCD();
     waitingToDecode = false;
-    lastActivity = now;
+    lastActivity = now; // mark activity time
   }
 
-  if (mode == 0 && !waitingToDecode && (now - lastActivity >= wordGap) && decodedText.length() > 0) {
+  if (mode == 0 && !waitingToDecode && (now - lastActivity >= wordGap))
+  {
     decodedText += ' ';
     updateLCD();
     lastActivity = now;
   }
 
-  if (mode == 1) {
+  if (mode == 1)
+  {
     bool irState = (digitalRead(irSensorPin) == LOW);
-
-    if (irState && !irWasBlocked) {
+    if (irState && !irWasBlocked)
+    {
       irBlockStart = now;
       irWasBlocked = true;
     }
-
-    if (!irState && irWasBlocked) {
+    if (!irState && irWasBlocked)
+    {
       irWasBlocked = false;
       unsigned long duration = now - irBlockStart;
       lastActivity = now;
-
-      if (duration < dotTime) {
+      if (duration < dotTime)
+      {
         morseBuffer += ".";
         buzzDot();
-      } else {
+      }
+      else
+      {
         morseBuffer += "-";
         buzzDash();
       }
       updateLCD();
     }
-
-    if (morseBuffer.length() > 0 && (now - lastActivity >= letterGap)) {
+    if (morseBuffer.length() > 0 && (now - lastActivity >= letterGap))
+    {
       char decoded = decodeMorse(morseBuffer);
       decodedText += decoded;
       Serial.print("IR Morse: ");
@@ -271,15 +333,16 @@ void loop() {
       morseBuffer = "";
       updateLCD();
     }
-
-    if (now - lastActivity >= wordGap) {
+    if (now - lastActivity >= wordGap)
+    {
       decodedText += ' ';
       updateLCD();
       lastActivity = now;
     }
   }
 
-  if (mode == 2 && Serial.available()) {
+  if (mode == 2 && Serial.available())
+  {
     String inputText = Serial.readStringUntil('\n');
     inputText.trim();
     lcd.clear();
@@ -288,22 +351,33 @@ void loop() {
     Serial.println("Encoding to Morse:");
     morseBuffer = "";
     decodedText = inputText;
-    for (char c : inputText) {
+    for (char c : inputText)
+    {
       String code = textToMorse(c);
       morseBuffer += code + " ";
-      for (int i = 0; i < code.length(); i++) {
-        if (code[i] == '.')
+      Serial.print(c);
+      Serial.print(" => ");
+      Serial.println(code);
+      if (code == " ")
+      {
+        delay(wordGap);
+        continue;
+      }
+      for (char symbol : code)
+      {
+        if (symbol == '.')
           buzzDot();
-        else if (code[i] == '-')
+        else if (symbol == '-')
           buzzDash();
       }
-      delay(500);  
+      delay(letterGap);
     }
     updateLCD();
   }
 
-  if (mode == 3) {
+  // Reset mode (Mode 3)
+  if (mode == 3)
+  {
     resetSystem();
-    mode = 0;
   }
 }
